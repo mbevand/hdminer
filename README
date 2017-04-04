@@ -1,0 +1,58 @@
+hdminer - Bitcoin GPU miner in ATI CAL IL
+
+History:
+- 21 Dec 2010: first fully working version is completed, I start mining with it
+- 28 Dec 2010: I advertise hdminer on IRC and sell the first copy (with source
+  code, but license prohibits redistribution)
+- 24 Jan 2011: I advertise hdminer more broadly on the forums at
+  https://bitcointalk.org/?topic=2949
+- mid-2011: hdminer becomes obsolete as the performance of open-source cgminer
+  catches up with my implementation
+- 04 Apr 2017: I release and place the code in the public domain, mostly as
+  a historical artifact
+
+Author: Marc Bevand, m.bevand at gmail.com
+License: hdminer is hereby placed in the public domain
+
+For installation instructions, see file "INSTALL".
+
+Performance modelling.
+  Blending:
+    48 steps doing 13 ops each:
+      5 ops to compute s0
+      5 ops to compute s1
+      3 adds to compute a word
+  Steps:
+    64 steps of 20 ops each:
+      5 ops to compute s0
+      2 ops to compute maj (optimized with BFI_INT to replace 5 ops)
+      1 op to compute t2
+      5 ops to compute s1
+      1 op to compute ch (optimized with BFI_INT to replace 4 ops)
+      4 ops to compute t1
+      2 adds to update intermediate hash values
+    8 adds to compute intermediate values
+  Minus:
+    3*20 because the last 3 steps of the second hash are not executed
+    7 adds are not necessary in second hash because only H needs to be computed
+Expected and measured bitcoin hash/sec:
+  HD 6990@sw1 2703e9/((48*13+64*20+8)*2-3*20-7)/1e6 = 720M, measured 746M
+  HD 6990@sw2 2550e9/((48*13+64*20+8)*2-3*20-7)/1e6 = 679M, measured 708M
+  HD 5970     2320e9/((48*13+64*20+8)*2-3*20-7)/1e6 = 618M, measured 569M
+  HD 6970     1352e9                                = 360M, est.     375M
+  HD 5870     1360e9                                = 362M, measured 333M
+  HD 6950     1127e9                                = 300M, measured 315M
+  HD 5850     1044e9                                = 278M, est.     256M
+
+Ideas:
+- pick a merkle root so that its last word + s0[timestamp] = 0 to allow
+  precomputing most of the blending
+- precompute as much of the blending as possible for 1st SHA-256
+- most of the blending for 2nd SHA-256 can be precomputed (zero words)
+- getwork at least every 6sec 
+
+data:
+00000001 [---                         previous hash                 ---
+--- ---] [---                         merkle root                   ---
+--- ---] [tstamp] [tgtbit] [nonce-] 00000080 00000000 00000000 00000000
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 80020000

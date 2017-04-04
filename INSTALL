@@ -1,0 +1,37 @@
+These steps have been tested on a fresh Ubuntu 10.04 (lucid lynx) install.
+
+1. Install the dependencies for compiling the Catalyst driver and hdminer:
+  $ sudo apt-get install build-essential linux-headers-generic dkms libqtcore4 lib32gcc1 libglu1-mesa libxrandr2 libxinerama1 libcurl4-gnutls-dev
+
+2. Download the Catalyst driver (eg. ati-driver-installer-11-3-x86.x86_64.run):
+  http://support.amd.com/us/gpudownload/Pages/index.aspx
+  And install it:
+  $ sudo sh ati-driver-installer-11-3-x86.x86_64.run
+  (Select all default options.)
+
+3. Create /etc/X11/xorg.conf (and fix the wrong perms set by aticonfig):
+  $ sudo aticonfig --initial -f --adapter=all
+  $ sudo chmod 644 /etc/X11/xorg.conf
+
+4. Reboot to make sure that the Catalyst kernel module fglrx.ko loads correctly
+  and that X11 starts properly configured:
+  $ sudo reboot
+
+5. Download the APP SDK (eg. AMD-APP-SDK-v2.4-lnx64.tgz):
+  http://developer.amd.com/gpu/AMDAPPSDK/downloads/Pages/default.aspx
+  And extract it in /usr/local:
+  $ sudo tar -C /usr/local -xzf AMD-APP-SDK-v2.4-lnx64.tgz
+
+6. In hdminer, in the Makefile, edit SDK_PATH to point to the SDK:
+  SDK_PATH = /usr/local/AMD-APP-SDK-v2.4-lnx64
+  And compile it:
+  $ make
+
+7. Mine! (By default, hdminer connects to the bitcoin JSON-RPC endpoint on
+  localhost, on the default port 8332, and authenticates with the user/password
+  bitcoin/password):
+  $ ./hdminer
+  To specify non-default values (eg. to mine on a pool):
+  $ ./hdminer -s servername -p 8332 -a user:password
+  See help:
+  $ ./hdminer -h

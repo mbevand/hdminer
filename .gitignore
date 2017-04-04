@@ -1,0 +1,10 @@
+/.hg/
+/.hgignore
+/hdminer
+/libjansson.a
+kernel-sha256*.h
+*.o
+*.swp
+*.tmp
+*.pyc
+tags
